@@ -56,3 +56,14 @@ jobs:
             ghcr.io/verylongdelay/python-uv:${{ matrix.python_version }}
           build-args: |
             python_version=${{ matrix.python_version }}
+
+      - name: Delete all containers from package without tags
+        uses: Chizkiyahu/delete-untagged-ghcr-action@v6
+        with:
+            token: ${{ github.token }}
+            repository_owner: ${{ github.repository_owner }}
+            repository: ${{ github.repository }}
+            package_name: the-package-name
+            untagged_only: true
+            owner_type: org # or user
+            except_untagged_multiplatform: true
