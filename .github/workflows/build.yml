@@ -74,7 +74,7 @@ jobs:
           username: ${{ github.repository_owner }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
-      - name: ghcr.io cleanup action
+      - name: ghcr.io cleanup untagged images
         uses: dataaxiom/ghcr-cleanup-action@v1
         with:
           delete-untagged: true
