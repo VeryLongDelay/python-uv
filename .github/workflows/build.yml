@@ -44,7 +44,7 @@ jobs:
       # Build and push the container to the GitHub Container
       # Repository. The container will be tagged as "latest"
       # and with the short SHA of the commit.
-      - name: Build and push
+      - name: Build and push to Github Container Registry
         uses: docker/build-push-action@v6
         with:
           cache-from: type=gha,scope=container
@@ -58,6 +58,7 @@ jobs:
             ghcr.io/verylongdelay/python-uv:${{ matrix.python_version }}
           build-args: |
             python_version=${{ matrix.python_version }}
+
 
   cleanup:
     needs: build
