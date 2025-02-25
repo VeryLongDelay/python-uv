@@ -1,4 +1,4 @@
-# python-uv-base
+# python-uv
 
 Lovingly forked from Owl Corp's [Python-Poetry-Base](https://github.com/owl-corp/python-template)
 
