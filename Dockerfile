@@ -5,7 +5,7 @@ ARG uv_version=0.6.5
 
 RUN apt-get update \
   && apt-get -y upgrade \
-  && apt-get install --no-install-recommends -y curl ca-certificates git libopencv-dev python3-opencv tesseract-ocr\
+  && apt-get install --no-install-recommends -y curl ca-certificates git libopencv-dev python3-opencv python3-pkg-resources tesseract-ocr\
   && apt-get clean && rm -rf /var/lib/apt/lists/*
 
 # Install uv
