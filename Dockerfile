@@ -1,7 +1,7 @@
 ARG python_version=3-slim
 FROM python:$python_version
 
-ARG uv_version=0.8.14
+ARG uv_version=0.8.15
 
 RUN apt-get update \
   && apt-get -y upgrade \
