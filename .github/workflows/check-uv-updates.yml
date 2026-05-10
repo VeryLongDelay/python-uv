@@ -1,0 +1,63 @@
+name: Check for UV updates and update Dockerfile
+
+on:
+  schedule:
+    - cron: "0 */2 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  check-uv:
+    runs-on: ubuntu-latest
+    outputs:
+      current_version: ${{ steps.current.outputs.version }}
+      latest_version: ${{ steps.latest.outputs.version }}
+      updated: ${{ steps.compare.outputs.updated }}
+    steps:
+      - uses: actions/checkout@v6
+
+      - name: Read current UV_VERSION from Dockerfile
+        id: current
+        run: |
+          CURRENT=$(grep -E '^ARG UV_VERSION=' Dockerfile | cut -d= -f2)
+          echo "version=$CURRENT" >> "$GITHUB_OUTPUT"
+
+      - name: Get latest uv release
+        id: latest
+        run: |
+          LATEST=$(curl -fsSL https://api.github.com/repos/astral-sh/uv/releases/latest | jq -r .tag_name)
+          echo "version=${LATEST#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Compare versions
+        id: compare
+        env:
+          CURRENT: ${{ steps.current.outputs.version }}
+          LATEST: ${{ steps.latest.outputs.version }}
+        run: |
+          if [ "$CURRENT" != "$LATEST" ]; then
+            echo "updated=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "updated=false" >> "$GITHUB_OUTPUT"
+          fi
+
+      - name: Print versions
+        run: |
+          echo "Current Dockerfile UV_VERSION: ${{ steps.current.outputs.version }}"
+          echo "Latest uv release: ${{ steps.latest.outputs.version }}"
+          echo "Needs update: ${{ steps.compare.outputs.updated }}"
+
+      - name: Update Dockerfile
+        if: steps.compare.outputs.updated == 'true'
+        run: |
+          sed -i -E 's/^ARG UV_VERSION=.*/ARG UV_VERSION=${{ steps.latest.outputs.version }}/' Dockerfile
+
+      - name: Commit and push changes
+        if: steps.compare.outputs.updated == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Dockerfile
+          git commit -m "chore: bump uv to ${{ steps.latest.outputs.version }}"
+          git push
