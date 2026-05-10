@@ -1,0 +1,43 @@
+name: Update uv_version in Dockerfile
+
+on:
+  schedule:
+    - cron: "0 */6 * * *"
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  update-uv-version:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v6
+
+      - name: Get latest uv release
+        id: uv
+        run: |
+          VERSION=$(curl -fsSL https://api.github.com/repos/astral-sh/uv/releases/latest | jq -r .tag_name)
+          echo "version=${VERSION#v}" >> "$GITHUB_OUTPUT"
+
+      - name: Read current Dockerfile version
+        id: current
+        run: |
+          CURRENT=$(grep -E '^ARG UV_VERSION=' Dockerfile | cut -d= -f2)
+          echo "version=$CURRENT" >> "$GITHUB_OUTPUT"
+
+      - name: Update Dockerfile
+        if: steps.uv.outputs.version != steps.current.outputs.version
+        run: |
+          sed -i -E 's/^ARG UV_VERSION=.*/ARG UV_VERSION=${{ steps.uv.outputs.version }}/' Dockerfile
+
+      - name: Commit and push changes
+        if: steps.uv.outputs.version != steps.current.outputs.version
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add Dockerfile
+          git commit -m "chore: bump uv to ${{ steps.uv.outputs.version }}"
+          git push

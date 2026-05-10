@@ -1,14 +1,16 @@
-ARG python_version=3-slim
-FROM python:$python_version
-ARG uv_version=0.11.12
+ARG PYTHON_VERSION=3-slim
+FROM python:${PYTHON_VERSION}
+
+ARG UV_VERSION=0.11.12
 
 RUN apt-get update \
   && apt-get -y upgrade \
-  && apt-get install --no-install-recommends -y curl ca-certificates git libopencv-dev python3-opencv tesseract-ocr\
-  && apt-get clean && rm -rf /var/lib/apt/lists/*
+  && apt-get install --no-install-recommends -y curl ca-certificates git libopencv-dev python3-opencv tesseract-ocr \
+  && apt-get clean \
+  && rm -rf /var/lib/apt/lists/*
 
 # Install uv
-ADD https://astral.sh/uv/$uv_version/install.sh /uv-installer.sh
+ADD https://astral.sh/uv/${UV_VERSION}/install.sh /uv-installer.sh
 RUN sh /uv-installer.sh && rm /uv-installer.sh
 
 # Set up the environment
