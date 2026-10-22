@@ -1,7 +1,7 @@
 ARG PYTHON_VERSION=3-slim
 FROM python:${PYTHON_VERSION}
 
-ARG UV_VERSION=0.13.4
+ARG UV_VERSION=0.13.5
 
 RUN apt-get update \
   && apt-get -y upgrade \
